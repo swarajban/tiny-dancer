@@ -1,0 +1,33 @@
+{
+  "versionLabel": "1.0.0",
+  "agentInfo": {
+    "languageCode": "en-US",
+    "projectId": "swaraj-actions",
+    "voiceName": "female_1"
+  },
+  "actions": [
+    {
+      "description": "Launch intent",
+      "initialTrigger": {
+        "intent": "assistant.intent.action.MAIN"
+      },
+      "httpExecution": {
+        "url": "https://24211213.ngrok.io"
+      }
+    },
+    {
+      "description": "Get shows",
+      "initialTrigger": {
+        "intent": "INTENT_GET_SHOWS",
+        "queryPatterns": [
+          {
+            "queryPattern": "get upcoming shows"
+          }
+        ]
+      },
+      "httpExecution": {
+        "url": "https://24211213.ngrok.io"
+      }
+    }
+  ]
+}
