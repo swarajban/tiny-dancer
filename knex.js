@@ -5,4 +5,9 @@ const pg = knex({
   connection: process.env.DB_URI
 })
 
-module.exports = pg
+const SHOWS = 'shows'
+
+module.exports = {
+  pg,
+  SHOWS
+}

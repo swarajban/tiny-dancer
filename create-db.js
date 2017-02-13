@@ -1,7 +1,7 @@
 require('dotenv').config()
-const pg = require('./knex')
+const { pg, SHOWS }= require('./knex')
 
-pg.schema.createTable('shows', (table) => {
+pg.schema.createTable(SHOWS, (table) => {
   table.increments()
   table.string('artist')
   table.string('venue')

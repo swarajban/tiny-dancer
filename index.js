@@ -1,7 +1,9 @@
 require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
+const moment = require('moment')
 const ActionsSdkAssistant = require('actions-on-google').ActionsSdkAssistant
+const { getUpcomingShows } = require('./lib')
 
 const INTENT_MAIN = 'assistant.intent.action.MAIN'
 const INTENT_GET_SHOWS = 'INTENT_GET_SHOWS'
@@ -35,8 +37,19 @@ function mainIntent (assistant) {
 }
 
 function getShows (assistant) {
-  console.log('GET_SHOWS intent')
-  assistant.tell('The upcoming shows are in your butt')
+  console.log('getShows intent')
+  getUpcomingShows()
+    .then(
+      (response) => {
+        assistant.tell(response)
+      }
+    )
+    .catch(
+      (err) => {
+        console.log(err)
+        assistant.tell('Something went wrong, sorry about that!')
+      }
+    )
 }
 
 main()
