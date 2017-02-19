@@ -83,6 +83,9 @@ function getShowString (shows) {
 }
 
 function generateResponse (dayStringShowMap) {
+  if (dayStringShowMap.size === 0) {
+    return 'No upcoming shows found'
+  }
   let response = ''
   for (const [dayString, shows] of dayStringShowMap) {
     const showString = getShowString(shows)
