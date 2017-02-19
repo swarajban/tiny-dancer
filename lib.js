@@ -85,5 +85,6 @@ function generateResponse (dayStringShowMap) {
 }
 
 module.exports = {
-  getUpcomingShows
+  getUpcomingShows,
+  PG_DATE_FMT: DATE_FMT
 }

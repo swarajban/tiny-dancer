@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const moment = require('moment')
 const ActionsSdkAssistant = require('actions-on-google').ActionsSdkAssistant
 const { getUpcomingShows } = require('./lib')
+const { updateShows } = require('./updateShows')
 
 const INTENT_MAIN = 'assistant.intent.action.MAIN'
 const INTENT_GET_SHOWS = 'INTENT_GET_SHOWS'
@@ -21,6 +22,12 @@ function main () {
     console.log('POST /')
     const assistant = new ActionsSdkAssistant({request: req, response: res})
     assistant.handleRequest(actionMap)
+  })
+
+  app.post('/update-shows', (req, res) => {
+    console.log('POST /update-shows')
+    updateShows()
+    res.json({woo: 1})
   })
 
   const server = app.listen(
