@@ -14,12 +14,12 @@ function getUpcomingShows () {
 
 function upcomingShowRows () {
   console.log('Fetching upcoming shows...')
-  const today = moment()
+  const today = moment().utcOffset(-8)
   const todayDateString = today.format(DATE_FMT)
   const nextWeek = moment(today).add(7, 'days')
   const nextWeekDateString = nextWeek.format(DATE_FMT)
   return pg(SHOWS)
-    .where('show_date', '>', todayDateString)
+    .where('show_date', '>=', todayDateString)
     .where('show_date', '<=', nextWeekDateString)
     .where('legitness', '>', 1)
     .orderBy('show_date', 'asc')
@@ -30,24 +30,31 @@ function upcomingShowRows () {
 function groupShowsByDate (shows) {
   const dateStringShowMap = new Map()
   shows.forEach(
-    ({artist, venue, show_date}) => {
+    ({artists, venue, show_date}) => {
       const dateString = moment(show_date).format(DATE_FMT)
       let dateShows = dateStringShowMap.get(dateString)
       if (dateShows === undefined) {
         dateShows = []
       }
-      dateShows.push({artist, venue})
+      dateShows.push({artists, venue})
       dateStringShowMap.set(dateString, dateShows)
     }
   )
   console.log(`${shows.length} shows are on ${dateStringShowMap.size} days`)
 
   const dayStringShowMap = new Map()
-  const nextWeek = moment().add(7, 'days')
+  const today = moment().utcOffset(-8)
+  const nextWeek = moment(today).add(7, 'days')
   for (const [dateString, shows] of dateStringShowMap) {
     const date = moment(dateString, DATE_FMT)
-    const formatter = date.isBefore(nextWeek) ? DAY_FMT : FUTURE_FMT
-    const dayString = date.format(formatter)
+    let dayString = ''
+    if (date.isSame(today, 'day')) {
+      dayString = 'Today'
+    } else if (date.isBefore(nextWeek)) {
+      dayString = `On ${date.format(DAY_FMT)}`
+    } else {
+      dayString = `On ${date.format(FUTURE_FMT)}`
+    }
     dayStringShowMap.set(dayString, shows)
   }
 
@@ -58,19 +65,19 @@ function groupShowsByDate (shows) {
 function getShowString (shows) {
   let showString = ''
   if (shows.length === 1) {
-    const {artist, venue} = shows[0]
-    showString = `${artist} is playing at ${venue}`
+    const {artists, venue} = shows[0]
+    showString = `${artists} are playing at ${venue}`
   } else if (shows.length === 2) {
-    const [{artist: artist1, venue: venue1}, {artist: artist2, venue: venue2}] = shows
-    showString = `${artist1} is playing at ${venue1} and ${artist2} is playing at ${venue2}`
+    const [{artists: artist1, venue: venue1}, {artists: artist2, venue: venue2}] = shows
+    showString = `${artist1} are playing at ${venue1} and ${artist2} are playing at ${venue2}`
   } else {
     const lastIndex = shows.length - 1
     const firstShows = shows.slice(0, lastIndex)
     const lastShow = shows[lastIndex]
-    firstShows.forEach(({artist, venue}) => {
-      showString += `${artist} is playing at ${venue}, `
+    firstShows.forEach(({artists, venue}) => {
+      showString += `${artists} are playing at ${venue}, `
     })
-    showString += `and ${lastShow.artist} is playing at ${lastShow.venue}`
+    showString += `and ${lastShow.artists} are playing at ${lastShow.venue}`
   }
   return showString
 }
@@ -79,7 +86,7 @@ function generateResponse (dayStringShowMap) {
   let response = ''
   for (const [dayString, shows] of dayStringShowMap) {
     const showString = getShowString(shows)
-    response += `On ${dayString}, ${showString}. `
+    response += `${dayString}, ${showString}. `
   }
   return response
 }

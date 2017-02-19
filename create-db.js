@@ -3,7 +3,7 @@ const { pg, SHOWS }= require('./knex')
 
 pg.schema.createTable(SHOWS, (table) => {
   table.increments()
-  table.string('artist')
+  table.string('artists')
   table.string('venue')
   table.date('show_date')
   table.integer('legitness')
