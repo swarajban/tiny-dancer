@@ -66,18 +66,18 @@ function getShowString (shows) {
   let showString = ''
   if (shows.length === 1) {
     const {artists, venue} = shows[0]
-    showString = `${artists} are playing at ${venue}`
+    showString = `${artists} are playing`
   } else if (shows.length === 2) {
     const [{artists: artist1, venue: venue1}, {artists: artist2, venue: venue2}] = shows
-    showString = `${artist1} are playing at ${venue1} and ${artist2} are playing at ${venue2}`
+    showString = `${artist1} are playing and ${artist2} are playing`
   } else {
     const lastIndex = shows.length - 1
     const firstShows = shows.slice(0, lastIndex)
     const lastShow = shows[lastIndex]
     firstShows.forEach(({artists, venue}) => {
-      showString += `${artists} are playing at ${venue}, `
+      showString += `${artists} are playing, `
     })
-    showString += `and ${lastShow.artists} are playing at ${lastShow.venue}`
+    showString += `and ${lastShow.artists} are playing`
   }
   return showString
 }
