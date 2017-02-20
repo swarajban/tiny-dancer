@@ -1,7 +1,6 @@
 require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
-const moment = require('moment')
 const ActionsSdkAssistant = require('actions-on-google').ActionsSdkAssistant
 const { getUpcomingShows } = require('./lib')
 const { updateShows } = require('./updateShows')
@@ -10,6 +9,8 @@ const INTENT_MAIN = 'assistant.intent.action.MAIN'
 const INTENT_GET_SHOWS = 'INTENT_GET_SHOWS'
 
 function main () {
+  scheduleUpdateShows()
+
   const app = express()
   app.set('port', process.env.PORT)
   app.use(bodyParser.json({type: 'application/json'}));
@@ -17,6 +18,12 @@ function main () {
   const actionMap = new Map()
   actionMap.set(INTENT_MAIN, mainIntent)
   actionMap.set(INTENT_GET_SHOWS, getShows)
+
+  app.get('/health', (req, res) => {
+    console.log('GET /health')
+    console.log('tiny-dancer healthy')
+    res.json({healthy: true})
+  })
 
   app.post('/', (req, res) => {
     console.log('POST /')
@@ -27,7 +34,7 @@ function main () {
   app.post('/update-shows', (req, res) => {
     console.log('POST /update-shows')
     updateShows()
-    res.json({woo: 1})
+    res.json({started: true})
   })
 
   const server = app.listen(
@@ -58,5 +65,18 @@ function getShows (assistant) {
       }
     )
 }
+
+const SHOW_UPDATE_INTERVAL_MS = parseInt(process.env.SHOW_UPDATE_INTERVAL_MS || 30000, 10)
+function scheduleUpdateShows () {
+  console.log('Updating shows...')
+  updateShows()
+    .finally(
+      () => {
+        console.log(`...finished. Scheduling next update in ${SHOW_UPDATE_INTERVAL_MS / 1000} seconds`)
+        setTimeout(scheduleUpdateShows, SHOW_UPDATE_INTERVAL_MS)
+      }
+    )
+}
+
 
 main()
